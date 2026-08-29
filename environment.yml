@@ -1,9 +1,11 @@
 name: pinn-heat
 channels:
-  - pytorch
   - conda-forge
-  - defaults
 dependencies:
   - python=3.10
   - pip
-  # pip packages moved to requirements.txt
+  # All Python packages are installed from requirements.txt via pip so that a
+  # single spec covers CUDA (Linux/Windows) and Apple Metal/MPS (macOS arm64):
+  #     conda env create -f environment.yml
+  #     conda activate pinn-heat
+  #     pip install -r requirements.txt

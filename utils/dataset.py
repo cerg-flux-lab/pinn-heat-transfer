@@ -115,7 +115,7 @@ def build_ann_dataloaders(data_dir, meat_names,
     val_split   : float      — fraction of combined data for validation
                                e.g. 0.2 → 80% train, 20% validation
     batch_size  : int        — batch size for training loader
-    device      : str        — 'cpu' or 'cuda'
+    device      : str        — 'cpu', 'cuda' or 'mps' (Apple Metal)
     seed        : int        — random seed for reproducibility
 
     Returns

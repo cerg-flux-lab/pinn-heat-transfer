@@ -68,7 +68,8 @@ pinn-heat-transfer/
 │
 ├── generate_dataset.py      ← FDM solver used to generate the training datasets. Read it to understand how the data was produced, but do not run it — the datasets are already provided in data/.
 ├── PINN_Heat_Transfer.ipynb ← your working notebook
-├── environment.yml          ← Anaconda environment specification
+├── environment.yml          ← conda environment (Python 3.10 + pip)
+├── requirements.txt         ← pinned packages (CUDA on Windows/Linux, Metal/MPS on Apple Silicon)
 ├── .gitignore
 └── README.md
 ```
@@ -129,13 +130,11 @@ It may take 5–10 minutes depending on your internet connection.
 > **Troubleshooting (Windows):** If you see a permissions error, run Anaconda
 > Prompt as Administrator.
 
-> **Troubleshooting (Mac M1/M2):** If PyTorch fails to install, replace the
-> pip section in `environment.yml` with:
-> ```yaml
->   - pip:
->       - torch==2.1.0
-> ```
-> Apple Silicon uses a different PyTorch build — the CPU version installs cleanly.
+> **Troubleshooting (Mac, Apple Silicon):** No special steps are needed. The
+> macOS PyTorch wheel installed by `requirements.txt` already contains the
+> **Metal (MPS)** backend, so an M-series Mac trains on its GPU. If `pip`
+> reports that no matching distribution was found, confirm the environment is
+> Python 3.10 with `python --version` — the pinned wheels are `cp310`.
 
 ---
 
@@ -176,6 +175,9 @@ print(np.__version__)
 
 If both print without errors, you are ready.
 
+Cell 1 of the notebook selects your hardware automatically and prints it —
+`cuda` on an NVIDIA machine, `mps` on Apple Silicon, `cpu` otherwise.
+
 ---
 
 
@@ -207,7 +209,32 @@ print(torch.cuda.get_device_name(0))
 
 ---
 
-### Option B — CPU only (recommended: reduce epochs for Section 7)
+### Option B — You have an Apple Silicon Mac (M1/M2/M3/M4)
+
+No changes needed. Cell 1 detects Apple's **Metal Performance Shaders (MPS)**
+backend automatically and trains on the integrated GPU.
+
+To confirm PyTorch can see the GPU:
+```python
+import torch
+print(torch.backends.mps.is_available())   # should print True
+print(torch.backends.mps.is_built())       # should print True
+```
+
+> **Note:** MPS runs in `float32` only. Every tensor in `utils/` is already
+> `float32`, so the project runs unchanged — but if you add code of your own,
+> do not cast anything to `float64` (`torch.double`) or it will fail on MPS.
+
+> **If you hit `NotImplementedError: ... not currently implemented for the MPS
+> backend`,** launch Jupyter with the CPU fallback enabled so the missing
+> operator silently runs on the CPU instead:
+> ```bash
+> PYTORCH_ENABLE_MPS_FALLBACK=1 jupyter notebook
+> ```
+
+---
+
+### Option C — CPU only (recommended: reduce epochs for Section 7)
 
 If you do not have a GPU, reduce the training epochs in the hyperparameter
 block before running Section 7:
@@ -223,7 +250,7 @@ Run the full epoch count once overnight for your final submission.
 
 ---
 
-### Option C — Google Colab (free GPU, recommended for CPU-only users)
+### Option D — Google Colab (free GPU, recommended for CPU-only users)
 
 Google Colab provides free access to a T4 GPU and requires no local installation.
 
@@ -290,6 +317,8 @@ git push
 | `ModuleNotFoundError: No module named 'utils'` | Make sure you launched Jupyter from inside the `pinn-heat-transfer/` directory |
 | `ModuleNotFoundError: No module named 'torch'` | Conda environment not activated — run `conda activate pinn-heat` |
 | Training is very slow | See Hardware Requirements section above — use Google Colab for free GPU access, or reduce `EPOCHS_ADAM` to 2000 for initial experiments |
+| Notebook prints `Device : cpu` on an Apple Silicon Mac | You are on an Intel Mac, or an x86 Python running under Rosetta. Check `python -c "import platform; print(platform.machine())"` — it must print `arm64` |
+| `NotImplementedError: ... for the MPS backend` | Start Jupyter with `PYTORCH_ENABLE_MPS_FALLBACK=1 jupyter notebook` |
 | Notebook output not showing | Run `Kernel → Restart & Run All` |
 | Git merge conflict in notebook | Each group member should work on a personal branch and merge via pull request |
 

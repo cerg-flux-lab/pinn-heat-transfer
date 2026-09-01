@@ -1,6 +1,14 @@
-torch==2.1.0
-torchvision==0.16.0
-numpy==1.24
+# PyTorch 2.8.0 ships GPU-capable wheels for every platform used on this course:
+#   - Linux / Windows  → CUDA build (NVIDIA)
+#   - macOS arm64      → Metal build (Apple Silicon, MPS backend)
+# The default PyPI macOS wheel already contains the MPS backend, so no extra
+# --index-url or separate install step is needed on a Mac.
+torch==2.8.0
+torchvision==0.23.0
+
+# numpy must stay < 2: matplotlib 3.7 and scipy 1.11.4 predate the NumPy 2 ABI.
+# 1.26.4 is the last 1.x release and is the version torch 2.8 is tested against.
+numpy==1.26.4
 matplotlib==3.7
 jupyter
 notebook

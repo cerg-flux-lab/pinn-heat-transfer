@@ -3,8 +3,8 @@
 #   - macOS arm64      → Metal build (Apple Silicon, MPS backend)
 # The default PyPI macOS wheel already contains the MPS backend, so no extra
 # --index-url or separate install step is needed on a Mac.
-torch==2.8.0
-torchvision==0.23.0
+torch==2.13.0
+torchvision==0.28.0
 
 # numpy must stay < 2: matplotlib 3.7 and scipy 1.11.4 predate the NumPy 2 ABI.
 # 1.26.4 is the last 1.x release and is the version torch 2.8 is tested against.
